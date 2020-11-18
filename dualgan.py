@@ -5,18 +5,19 @@ import sys
 import datetime
 
 import numpy as np
-import scipy
 import matplotlib.pyplot as plt
 
 import keras.backend as K
 from keras.datasets import mnist
-from keras_contrib.layers.normalization.instancenormalization import InstanceNormalization
+# from keras_contrib.layers.normalization.instancenormalization import InstanceNormalization
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, Concatenate
 from keras.layers import BatchNormalization, Activation, ZeroPadding2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.convolutional import UpSampling2D, Conv2D
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
+
+import tensorflow_addons as tfa
 
 from data_loader import DataLoader
 
@@ -108,7 +109,7 @@ class dualGAN():
             """Layers used during downsampling"""
             d = Conv2D(filters, kernel_size=f_size, strides=2, padding='same')(layer_input)
             d = LeakyReLU(alpha=0.2)(d)
-            d = InstanceNormalization()(d)
+            d = tfa.layers.InstanceNormalization()(d)
             return d
 
         def deconv2d(layer_input, skip_input, filters, f_size=4, dropout_rate=0):
@@ -117,7 +118,8 @@ class dualGAN():
             u = Conv2D(filters, kernel_size=f_size, strides=1, padding='same', activation='relu')(u)
             if dropout_rate:
                 u = Dropout(dropout_rate)(u)
-            u = InstanceNormalization()(u)
+            u = tfa.layers.InstanceNormalization()(u)
+
             u = Concatenate()([u, skip_input])
             return u
 
@@ -147,7 +149,8 @@ class dualGAN():
             d = Conv2D(filters, kernel_size=f_size, strides=2, padding='same')(layer_input)
             d = LeakyReLU(alpha=0.2)(d)
             if normalization:
-                d = InstanceNormalization()(d)
+                d = tfa.layers.InstanceNormalization()(d)
+
             return d
 
         img = Input(shape=self.img_shape)
@@ -261,5 +264,5 @@ class dualGAN():
 
 
 if __name__ == '__main__':
-    gan = CycleGAN()
+    gan = dualGAN()
     gan.train(epochs=200, batch_size=1, sample_interval=20)
