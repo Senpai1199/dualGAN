@@ -38,7 +38,7 @@ class dualGAN():
 
         # Calculate output shape of D (PatchGAN)
         patch = int(self.img_rows / 2**4)
-        self.disc_patch = (patch, patch, 1)
+        self.disc_patch = (patch, patch, 3)
 
         # Number of filters in the first layer of G and D
         self.gf = 32
