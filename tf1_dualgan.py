@@ -3,6 +3,7 @@ import numpy as np
 import os
 import time
 import json
+import matplotlib.pyplot as plt
 
 import helper
 
@@ -218,6 +219,7 @@ class DualGAN(object):
 
 def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_size, print_every=30, save_every=100):
     steps = 0
+    discriminator_losses, generator_losses = [], []
 
     # prepare saver for saving trained model
     saver = tf.train.Saver()
@@ -229,6 +231,7 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
             # shuffle data randomly at every epoch
             train_data_loader.reset()
             # val_data_loader.reset()
+            epoch_disc_loss, epoch_gen_loss = [], []
 
             for ii in range(train_data_loader.n_images // batch_size):
                 steps += 1
@@ -239,7 +242,7 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
                     net.input_u: batch_image_u,
                     net.input_v: batch_image_v
                 }
-
+                
                 _ = sess.run(net.d_train_opt, feed_dict=fd)
                 _ = sess.run(net.g_train_opt, feed_dict=fd)
                 _ = sess.run(net.g_train_opt, feed_dict=fd)
@@ -250,6 +253,10 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
                     train_loss_g = net.g_loss.eval(fd)
                     train_loss_A_l1 = net.gen_A_l1_loss.eval(fd)
                     train_loss_B_l1 = net.gen_B_l1_loss.eval(fd)
+
+                    epoch_disc_loss.append(train_loss_d)
+                    epoch_gen_loss.append(train_loss_g)
+                    # print(f"This epoch, discriminator loss {epoch_disc_loss}, generator loss {epoch_gen_loss}")
 
                     print("Epoch {}/{}...".format(e + 1, epochs),
                           "Discriminator Loss: {:.4f}...".format(train_loss_d),
@@ -269,9 +276,41 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
                                        test_image_u, gen_A_out, gen_AB_out,
                                        test_image_v, gen_B_out, gen_BA_out)
 
+            discriminator_losses.append(sum(epoch_disc_loss)/len(epoch_disc_loss))
+            generator_losses.append(sum(epoch_gen_loss)/len(epoch_gen_loss))
+            # print(f"After epoch {e+1}, discriminator loss {discriminator_losses}, generator loss {generator_losses}")
+            print(30*"=")
+
         ckpt_fn = './checkpoints/DualGAN-{:s}.ckpt'.format(dataset_name)
         saver.save(sess, ckpt_fn)
+    
+    epoch_list = [i for i in range(1, epochs+1)]
+    # Single plot
+    plt.figure()
+    plt.plot(epoch_list, discriminator_losses, color='red', label='Discriminator')
+    plt.plot(epoch_list, generator_losses, color='blue', label='Generator', linestyle='dashed')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend(loc="upper left")
+    plt.savefig('./assets/loss_single_plot.png')
+    plt.close()
 
+    # Subplots
+    plt.figure()
+    plt.subplots_adjust(hspace=0.5, wspace=0.5)
+    plt.subplot(211)
+    plt.title("Generator")
+    plt.plot(epoch_list, generator_losses, color='blue', label='Generator')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.subplot(212)
+    plt.title("Discriminator")
+    plt.plot(epoch_list, discriminator_losses, color='red')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.savefig('./assets/loss_subplots.png')
+    plt.close()
+    
     return
 
 def test(net, dataset_name, val_data_loader):
@@ -333,6 +372,8 @@ def main():
 
         if not is_test:
             # load train & validation datasets
+            print(30*"-")
+            print("Training")
             train_data_loader = helper.Dataset(train_dataset_dir_u, train_dataset_dir_v, fn_ext,
                                                im_size, im_channel, im_channel, do_flip=do_flip, do_shuffle=True)
             val_data_loader = helper.Dataset(val_dataset_dir_u, val_dataset_dir_v, fn_ext,
@@ -343,14 +384,15 @@ def main():
             train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_size)
             end_time = time.time()
             total_time = end_time - start_time
-            test_result_str = '[Training]: Data: {:s}, Epochs: {:3f}, Batch_size: {:2d}, Elapsed time: {:3f}\n'.format(
-                dataset_name, epochs, batch_size, total_time)
+            test_result_str = '[Training]: Data: {:s}, Epochs: {:3f}, Batch_size: {:2d}, Elapsed time: {:3f}\n'.format(dataset_name, epochs, batch_size, total_time)
             print(test_result_str)
 
             with open('./assets/test_summary.txt', 'a') as f:
                 f.write(test_result_str)
 
         else:
+            print(30*"-")
+            print("Validation")
             # load train datasets
             val_data_loader = helper.Dataset(val_dataset_dir_u, val_dataset_dir_v, fn_ext,
                                              im_size, im_channel, im_channel, do_flip=False, do_shuffle=False)
