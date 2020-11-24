@@ -27,7 +27,7 @@ def save_result(image_fn,
 
     concat_row_0 = np.concatenate((im_0, im_1, im_2), axis=1)
     concat_row_1 = np.concatenate((im_3, im_4, im_5), axis=1)
-    concated = np.concatenate((concat_row_0, concat_row_1), axis=0)
+    concated = np.concatenate((concat_row_0, concat_row_1), axis=1)
 
     if concated.shape[2] == 1:
         reshaped = np.squeeze(concated, axis=2)
