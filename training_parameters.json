@@ -1,0 +1,24 @@
+[
+  {
+    "file_extension": "jpg",
+    "dataset_name": "day-night",
+    "dataset_base_dir": "/content/",
+    "epochs": 45,
+    "batch_size": 2,
+    "im_size": 256,
+    "im_channel": 3,
+    "do_flip": true,
+    "is_test": false
+  },
+  {
+    "file_extension": "jpg",
+    "dataset_name": "day-night",
+    "dataset_base_dir": "/content/",
+    "epochs": 45,
+    "batch_size": 2,
+    "im_size": 256,
+    "im_channel": 3,
+    "do_flip": false,
+    "is_test": true
+  }
+]
