@@ -12,7 +12,7 @@
 
 
 import math
-convnet = [[5,2,1],[5,2,1],[5,2,1],[5,1,1],[5,1,1]]
+convnet = [[4,2,1],[4,2,1],[4,2,1],[4,1,1],[4,1,1]]
 layer_names = ['conv1','conv2','conv3','conv4','conv5']
 imsize = 256
 
@@ -35,15 +35,15 @@ def outFromIn(conv, layerIn):
 	return n_out, j_out, r_out
 	
 def printLayer(layer, layer_name):
-	print(layer_name + ":")
-	print("\t n features: %s \n \t receptive size: %s \t " % (layer[0], layer[2]))
+	print(layer_name + ":" + "\t receptive size: %s \t " % (layer[2]))
+	print()
  
 layerInfos = []
 if __name__ == '__main__':
 #first layer is the data layer (image) with n_0 = image size; j_0 = 1; r_0 = 1;
 	print ("-------Net summary------")
 	currentLayer = [imsize, 1, 1]
-	printLayer(currentLayer, "input image")
+	# printLayer(currentLayer, "input image")
 	for i in range(len(convnet)):
 		currentLayer = outFromIn(convnet[i], currentLayer)
 		layerInfos.append(currentLayer)
