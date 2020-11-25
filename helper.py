@@ -6,6 +6,9 @@ from scipy.misc import imresize, toimage
 
 
 def preprocess_for_saving_image(im):
+    """
+        Prepares the image before saving it.
+    """
     if im.shape[0] == 1:
         im = np.squeeze(im, axis=0)
 
@@ -18,6 +21,10 @@ def preprocess_for_saving_image(im):
 def save_result(image_fn,
                 real_image_u, g_image_u_to_v, g_image_u_to_v_to_u,
                 real_image_v, g_image_v_to_u, g_image_v_to_u_to_v):
+    """
+        Saves the final generated results in 1 row consisting of 6 images:
+        A -> B -> AtoBtoA | B -> A -> BtoAtoB
+    """
     im_0 = preprocess_for_saving_image(real_image_u)
     im_1 = preprocess_for_saving_image(g_image_u_to_v)
     im_2 = preprocess_for_saving_image(g_image_u_to_v_to_u)
