@@ -34,6 +34,15 @@ def extract_both_masks(eval_segm, gt_segm, cl, n_cl):
 
     return eval_mask, gt_mask
 
+def segm_size(segm):
+    try:
+        height = segm.shape[0]
+        width  = segm.shape[1]
+    except IndexError:
+        raise
+
+    return height, width
+
 def pixel_accuracy(eval_segm, gt_segm):
     '''
     sum_i(n_ii) / sum_i(t_i)
