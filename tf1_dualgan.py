@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import helper
 
 class DualGAN(object):
+    """
+        Main class compromising of the whole GAN architecture and utils.
+    """
     def __init__(self, im_size, im_channel_u, im_channel_v):
         tf.reset_default_graph()
 
@@ -256,8 +259,9 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
 
                     epoch_disc_loss.append(train_loss_d)
                     epoch_gen_loss.append(train_loss_g)
+                    
                     # print(f"This epoch, discriminator loss {epoch_disc_loss}, generator loss {epoch_gen_loss}")
-
+                    # to provide visual feedback during the process.
                     print("Epoch {}/{}...".format(e + 1, epochs),
                           "Discriminator Loss: {:.4f}...".format(train_loss_d),
                           "Generator Loss: {:.4f}".format(train_loss_g),
@@ -281,11 +285,13 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
             # print(f"After epoch {e+1}, discriminator loss {discriminator_losses}, generator loss {generator_losses}")
             print(30*"=")
 
+        # save checkpoint
         ckpt_fn = './checkpoints/DualGAN-{:s}.ckpt'.format(dataset_name)
         saver.save(sess, ckpt_fn)
     
     epoch_list = [i for i in range(1, epochs+1)]
-    # Single plot
+
+    # Single plot for discriminator and generator losses.
     plt.figure()
     plt.plot(epoch_list, discriminator_losses, color='red', label='Discriminator')
     plt.plot(epoch_list, generator_losses, color='blue', label='Generator', linestyle='dashed')
@@ -295,25 +301,33 @@ def train(net, dataset_name, train_data_loader, val_data_loader, epochs, batch_s
     plt.savefig('./assets/loss_single_plot.png')
     plt.close()
 
-    # Subplots
+    # 2 Subplots in 1 figure for generator and discriminator losses.
     plt.figure()
     plt.subplots_adjust(hspace=0.5, wspace=0.5)
+
+    #Subplot 1
     plt.subplot(211)
     plt.title("Generator")
     plt.plot(epoch_list, generator_losses, color='blue', label='Generator')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
+
+    # Subplot 2
     plt.subplot(212)
     plt.title("Discriminator")
     plt.plot(epoch_list, discriminator_losses, color='red')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
+
     plt.savefig('./assets/loss_subplots.png')
     plt.close()
     
     return
 
 def test(net, dataset_name, val_data_loader):
+    """
+        Function to test the GAN and produce results.
+    """
     ckpt_fn = './checkpoints/DualGAN-{:s}.ckpt'.format(dataset_name)
     saver = tf.train.Saver()
     with tf.Session() as sess:
@@ -332,7 +346,9 @@ def test(net, dataset_name, val_data_loader):
                                test_image_v, gen_B_out, gen_BA_out)
 
 def main():
-    # prepare directories
+    # Entry point of the file
+
+    # prepare directories for assets(saves images during training) and checkpoints.
     assets_dir = './assets/'
     ckpt_dir = './checkpoints/'
     if not os.path.isdir(assets_dir):
@@ -344,7 +360,7 @@ def main():
     with open('./training_parameters.json') as json_data:
         parameter_set = json.load(json_data)
 
-    # start working!!
+    # start working
     for param in parameter_set:
         fn_ext = param['file_extension']
         dataset_name = param['dataset_name']
@@ -361,7 +377,7 @@ def main():
         if not os.path.isdir(current_assets_dir):
             os.mkdir(current_assets_dir)
 
-        # set dataset folders
+        # set dataset folders according to dataset being used
         train_dataset_dir_u = dataset_base_dir + '{:s}/train/A/'.format(dataset_name)
         train_dataset_dir_v = dataset_base_dir + '{:s}/train/B/'.format(dataset_name)
         val_dataset_dir_u = dataset_base_dir + '{:s}/val/A/'.format(dataset_name)
