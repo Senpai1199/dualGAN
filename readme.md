@@ -1,5 +1,5 @@
 # dualGAN
-PyTorch implementation of the paper: [DualGAN: Unsupervised Dual Learning for Image-to-Image Translation](https://arxiv.org/abs/1704.02510) <br/>
+Tensorflow implementation of the paper: [DualGAN: Unsupervised Dual Learning for Image-to-Image Translation](https://arxiv.org/abs/1704.02510) <br/>
 [Link to Complete Dataset](http://efrosgans.eecs.berkeley.edu/pix2pix/datasets/)
 
 ## Folders in the repository:
