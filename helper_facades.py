@@ -119,6 +119,7 @@ class Dataset(object):
             np.random.shuffle(self.image_files_v)
 
     def get_image_by_index(self, index):
+        # fetch one image from domain U and one from domain V (both at same index)
         if index >= self.n_images:
             index = 0
 
@@ -136,6 +137,7 @@ class Dataset(object):
         return image_u, image_v
 
     def get_image_by_index_u(self, index):
+        # fetch image from domain U
         if index >= self.n_images:
             index = 0
 
@@ -144,6 +146,7 @@ class Dataset(object):
         return image_u
 
     def get_image_by_index_v(self, index):
+        # fetch image from domain V
         if index >= self.n_images:
             index = 0
 
@@ -152,6 +155,7 @@ class Dataset(object):
         return image_v
 
     def get_next_batch(self, batch_size):
+        # fetch next batch of images
         if (self.batch_index + batch_size) > self.n_images:
             self.batch_index = 0
 
